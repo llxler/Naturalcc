@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="Tokenizer 自定义与评估工具箱" href="tokenizer_toolbox.html" /><link rel="prev" title="C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）" href="c_graph.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="Tokenizer 自定义与评估工具箱" href="tokenizer_toolbox.html" /><link rel="prev" title="C 语言图提取并生成模型提示词" href="c_graph.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.07.19 -->
         <title>代码语言模型指令微调 - Naturalcc 文档</title>
@@ -200,9 +200,9 @@
   <p class="caption" role="heading"><span class="caption-text">目录</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Naturalcc 是什么</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">教程指南（Tutorial）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">教程指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repo_context.html">仓库级别代码上下文提取与补全</a></li>
-<li class="toctree-l1"><a class="reference internal" href="c_graph.html">C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_graph.html">C 语言图提取并生成模型提示词</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">代码语言模型指令微调</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenizer_toolbox.html">Tokenizer 自定义与评估工具箱</a></li>
 </ul>
@@ -249,7 +249,36 @@
 <h1>代码语言模型指令微调<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <section id="id2">
 <h2>简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>本模块用于对代码语言模型做指令式微调（Instruction Fine-tuning），使模型更好地遵循自然语言的指令（例如“给出函数注释”、“补全 TODO” 等）并提升交互式代码生成/修改能力。</p>
+<p>本模块用于对代码语言模型做指令式微调（Instruction Fine-tuning），使模型更好地遵循自然语言的指令（例如“给出函数注释”、“补全 TODO” 等）并提升交互式代码生成/修改能力。
+其核心功能是通过提供标准化的数据集处理工具和可配置的训练脚本，对影响模型性能的关键变量进行量化对比和分析。框架旨在帮助研究人员和开发者找到最优的指令微调策略。具体流程如下：</p>
+<ol class="arabic">
+<li><p><strong>对比实验：指令数据格式的影响</strong></p>
+<p>框架的核心功能之一是深入探究训练数据对模型最终效果的影响。通过运行 instruction_data_compare.py 脚本，可以对以下数据维度进行受控实验：</p>
+<ul class="simple">
+<li><p><strong>代码注释的价值分析</strong>: 通过对比标准数据集与移除了代码注释的数据集，量化评估注释中的自然语言信息对模型学习代码逻辑的贡献度。</p></li>
+<li><p><strong>思维链（CoT）的有效性验证</strong>: 对比增加思维链（Chain of Thought）前后的模型表现，验证 CoT 在代码任务中引导模型进行逻辑推理的实际效果。</p></li>
+<li><p><strong>思维链的复杂度研究</strong>: 在使用 CoT 的基础上，进一步将思维链划等级，精细化地研究不同详细程度的推理步骤对模型性能的影响。</p></li>
+</ul>
+</li>
+<li><p><strong>对比实验：高效微调（PEFT）方法的影响</strong></p>
+<p>框架通过 peft_compare.py 脚本，支持在完全相同的数据集上对多种主流的参数高效微调（PEFT）技术进行对比实验，以评估其在代码任务上的性价比和最终效果。支持的 PEFT 方法包括：</p>
+<ul class="simple">
+<li><p><strong>LoRA</strong></p></li>
+<li><p><strong>AdaLoRA</strong></p></li>
+<li><p><strong>Prefix-Tuning</strong></p></li>
+<li><p><strong>P-Tuning</strong></p></li>
+<li><p><strong>Prompt-Tuning</strong></p></li>
+</ul>
+</li>
+<li><p><strong>自动化的数据处理与生成</strong></p></li>
+</ol>
+<p>为了支撑上述对比实验，框架提供了一套强大的数据预处理工具，位于 data_process 文件夹下，能够自动化地生成实验所需的各种数据集。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>多维度 CoT 数据生成</strong> (CoT_complex_data_generate.py): 利用一个强大的基座模型（如 Qwen2.5-72B），构建出用于复杂度对比实验的数据。</p></li>
+<li><p><strong>数据集清洗工具</strong> (remove_comment_util.py): 提供一键移除数据集中所有代码注释的功能，快速生成用于对照实验的数据集。</p></li>
+</ul>
+</div></blockquote>
 </section>
 <section id="id3">
 <h2>功能展示<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
@@ -282,6 +311,53 @@
 </li>
 <li><p>验证与导出：训练完成后运行评估脚本并导出 checkpoint。</p></li>
 </ol>
+<section id="id6">
+<h3>数据处理与增强<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>项目提供 <code class="docutils literal notranslate"><span class="pre">data_process</span></code> 模块，用于生成和处理指令微调训练数据。</p></li>
+<li><p><strong>CoT_complex_data_generate.py</strong>：对带有复杂思维链（CoT）的训练数据进行简化，生成不同复杂度的思维链数据：
+- <code class="docutils literal notranslate"><span class="pre">normal_think_step</span></code>：正常复杂度
+- <code class="docutils literal notranslate"><span class="pre">simple_think_step</span></code>：简化后的思维链</p></li>
+<li><p><strong>remove_comment_util.py</strong>：可选地去除代码注释信息，研究注释对微调效果的影响。</p></li>
+<li><p>支持分批处理大规模数据，并自动保存为 JSONL 格式。</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>指令微调实验<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">InstructionTrainer</span></code> 类对基础模型进行指令微调。</p></li>
+<li><p>实验主要包括：
+- 标准种子数据集微调
+- 去除注释的指令数据微调
+- 带有思维链信息的数据微调
+- 不同复杂度（简单 / 正常 / 复杂）的思维链数据微调</p></li>
+<li><p>通过 YAML 配置文件（<code class="docutils literal notranslate"><span class="pre">configs/training/instruction_finetune.yaml</span></code>、<code class="docutils literal notranslate"><span class="pre">configs/training/peft.yaml</span></code>）管理训练参数。</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>高效微调方法比较<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">peft_compare.py</span></code> 比较不同高效微调方法（PEFT）对模型性能的影响：
+- LoRA
+- AdaLoRA
+- Prefix Tuning
+- P-tuning
+- Prompt Tuning</p></li>
+<li><p>所有方法均使用相同的标准指令数据集进行微调，以保证可比性。</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>训练与实验流程<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<p>配置环境变量：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span><span class="s2">:/path/to/naturalcc/ncc&quot;</span>
+</pre></div>
+</div>
+<p>运行微调脚本：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>instruction_data_compare.py<span class="w">   </span><span class="c1"># 或 peft_compare.py</span>
+</pre></div>
+</div>
+<p>脚本会读取指定数据集，自动进行训练，并生成微调后的模型。</p>
+</section>
 </section>
 </section>
 
@@ -306,7 +382,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）</div>
+                <div class="title">C 语言图提取并生成模型提示词</div>
                 
               </div>
             </a>
@@ -344,7 +420,13 @@
 <li><a class="reference internal" href="#id2">简介</a></li>
 <li><a class="reference internal" href="#id3">功能展示</a></li>
 <li><a class="reference internal" href="#id4">示例配置（简要）</a></li>
-<li><a class="reference internal" href="#id5">使用教程</a></li>
+<li><a class="reference internal" href="#id5">使用教程</a><ul>
+<li><a class="reference internal" href="#id6">数据处理与增强</a></li>
+<li><a class="reference internal" href="#id7">指令微调实验</a></li>
+<li><a class="reference internal" href="#id8">高效微调方法比较</a></li>
+<li><a class="reference internal" href="#id9">训练与实验流程</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

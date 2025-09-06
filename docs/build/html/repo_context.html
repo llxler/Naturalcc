@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）" href="c_graph.html" /><link rel="prev" title="教程指南（Tutorial）" href="tutorial.html" />
+<link rel="index" title="索引" href="genindex.html" /><link rel="search" title="搜索" href="search.html" /><link rel="next" title="C 语言图提取并生成模型提示词" href="c_graph.html" /><link rel="prev" title="教程指南" href="tutorial.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.07.19 -->
         <title>仓库级别代码上下文提取与补全 - Naturalcc 文档</title>
@@ -200,9 +200,9 @@
   <p class="caption" role="heading"><span class="caption-text">目录</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Naturalcc 是什么</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">教程指南（Tutorial）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">教程指南</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">仓库级别代码上下文提取与补全</a></li>
-<li class="toctree-l1"><a class="reference internal" href="c_graph.html">C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_graph.html">C 语言图提取并生成模型提示词</a></li>
 <li class="toctree-l1"><a class="reference internal" href="instruction_finetune.html">代码语言模型指令微调</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenizer_toolbox.html">Tokenizer 自定义与评估工具箱</a></li>
 </ul>
@@ -250,6 +250,33 @@
 <section id="id2">
 <h2>简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>本模块用于从代码仓库级别提取上下文信息（例如文件间调用关系、跨文件符号引用、函数/类上下文）并基于提取结果做补全或生成提示（prompts）。该功能适用于需要跨文件上下文的模型推理或训练场景。</p>
+<ol class="arabic simple">
+<li><p><strong>仓库上下文提取</strong>：</p>
+<ul class="simple">
+<li><p>通过解析代码仓库中的文件，构建控制依赖图（CCG）和语义图数据库，提取代码片段之间的依赖关系和上下文信息。</p></li>
+<li><p>使用工具如Slicing和GraphDatabaseBuilder，对代码进行切片，生成前向依赖上下文、子图和编码信息。</p></li>
+<li><p>提供了跨文件的定义和引用上下文提取功能（如construct_cross_file_definition_context和construct_cross_file_reference_context），帮助理解代码片段之间的跨文件依赖关系。</p></li>
+</ul>
+</li>
+<li><p><strong>语义相似度计算与上下文推荐</strong>：</p>
+<ul class="simple">
+<li><p>实现了多种相似度计算方法（如编辑距离、Jaccard相似度、BM25、TF-IDF等），用于比较代码片段之间的语义相似性。</p></li>
+<li><p>通过SemanticReranking类，结合预训练模型（如CodeBERT、UniXcoder），对代码片段进行语义重排序，提升推荐结果的准确性。</p></li>
+</ul>
+</li>
+<li><p><strong>仓库级别代码补全</strong>：</p>
+<ul class="simple">
+<li><p>通过构建查询子图（build_query_subgraph）和搜索上下文（CodeSearchWorker），实现了基于上下文的代码补全。</p></li>
+<li><p>支持单阶段和双阶段的上下文查找策略，结合语义图和文本相似度，推荐最相关的代码片段。</p></li>
+</ul>
+</li>
+<li><p><strong>多语言支持与高效处理</strong>：</p>
+<ul class="simple">
+<li><p>支持多种编程语言（如Python、Java、TypeScript等），并通过多进程和多线程优化了大规模代码仓库的处理效率。</p></li>
+</ul>
+</li>
+</ol>
+<p>该项目通过提取代码仓库的上下文信息，结合语义分析和相似度计算，生成高质量的代码补全建议，帮助开发者更高效地理解和编写代码。</p>
 </section>
 <section id="id3">
 <h2>功能展示<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
@@ -288,6 +315,87 @@
 - <code class="docutils literal notranslate"><span class="pre">--target</span></code>: 目标位置，格式 <code class="docutils literal notranslate"><span class="pre">file:lineno</span></code>
 - <code class="docutils literal notranslate"><span class="pre">--window</span></code>: 上下文窗口大小（字符或行）</p>
 </section>
+<section id="id6">
+<h2>仓库上下文提取测试<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<p>本目录包含用于测试不同类型仓库上下文的代码。</p>
+<section id="id7">
+<h3>目录结构<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>test_repo_context/
+├── line_completion_dependency_graph.jsonl    # 依赖图生成的测试数据
+├── line_completion_rg1_tfidf.jsonl           # TF-IDF相似性测试数据
+├── test_common_similar_context.py            # 通用相似性上下文检索测试（支持
+├── test_graph_semantic_similar_context.py    # 图语义结构相似性上下文检索测试
+└── test_structural_related_context.py        # 结构相关上下文检索测试
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>测试类型<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p><strong>通用相似性测试(test_common_similar_context.py)</strong>
+- 基于文本相似度的上下文匹配
+- 支持UnixCoderCodeBertBM25TF-IDF编辑相似度等多种相似度检索方法
+- 示例测试命令：基于TF-IDF的上下文检索</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>augment_with_cfc.py<span class="w"> </span><span class="se">\</span>
+--language<span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
+--rerank<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
+--ranker<span class="w"> </span>sparse<span class="w"> </span><span class="se">\</span>
+--ranking_fn<span class="w"> </span>tfidf<span class="w"> </span><span class="se">\</span>
+--crossfile_distance<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+--maximum_chunk_to_rerank<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\</span>
+--maximum_cross_files<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\</span>
+--maximum_cross_file_chunk<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+--use_next_chunk_as_cfc<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
+--skip_if_no_cfc<span class="w"> </span>False<span class="w"> </span><span class="se">\</span>
+--output_file_suffix<span class="w"> </span>rg1
+</pre></div>
+</div>
+</li>
+<li><p><strong>图语义相似性测试(test_graph_semantic_similar_context.py)</strong>
+- 基于代码语义图的相似性分析
+- 考虑变量、函数调用等语义关系
+- 测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_graph_semantic_similar_context.py</span></code></p></li>
+<li><p><strong>结构相关性测试(test_structural_related_context.py)</strong>
+- 分析代码结构相关性
+- 考虑类继承、接口实现等结构关系
+- 测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_structural_related_context.py</span></code></p></li>
+</ol>
+</section>
+</section>
+<section id="id9">
+<h2>仓库级别代码补全测试<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h3>目录结构<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>repo-level_code_completion/
+├── config.yaml                # accelerate配置文件
+├── custom_generate.py         # 自定义生成逻辑
+├── data_merge.py             # 数据合并工具
+├── eval.py                   # 评估主程序
+├── eval_metric.py            # 评估指标计算
+├── eval_utils.py             # 评估工具函数
+├── merged_line_completion.jsonl # 合并后的测试数据
+├── repofuse-main/            # 主实验结果的输出目录
+│   └── Qwen2.5-Coder-7B-Instruct/ # 特定模型的评估结果
+├── run_batch_experiments.py  # 实验运行脚本
+└── test.md                   # 测试文档
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>运行评估<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_batch_experiments.py<span class="w"> </span>--task<span class="w"> </span>repofuse-main
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>评估指标<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Exact Match (EM)</p></li>
+<li><p>Edit Similarity (ES)</p></li>
+<li><p>Identifier Match (IM)</p></li>
+</ul>
+</section>
+</section>
 </section>
 
         </article>
@@ -300,7 +408,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">C 语言图提取并生成模型提示词（C-Graph Extraction &amp; Prompt Generation）</div>
+                <div class="title">C 语言图提取并生成模型提示词</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -311,7 +419,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">教程指南（Tutorial）</div>
+                <div class="title">教程指南</div>
                 
               </div>
             </a>
@@ -350,6 +458,17 @@
 <li><a class="reference internal" href="#id3">功能展示</a></li>
 <li><a class="reference internal" href="#id4">展示示例</a></li>
 <li><a class="reference internal" href="#id5">使用教程</a></li>
+<li><a class="reference internal" href="#id6">仓库上下文提取测试</a><ul>
+<li><a class="reference internal" href="#id7">目录结构</a></li>
+<li><a class="reference internal" href="#id8">测试类型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">仓库级别代码补全测试</a><ul>
+<li><a class="reference internal" href="#id10">目录结构</a></li>
+<li><a class="reference internal" href="#id11">运行评估</a></li>
+<li><a class="reference internal" href="#id12">评估指标</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
