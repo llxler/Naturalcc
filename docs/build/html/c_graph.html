@@ -249,7 +249,42 @@
 <h1>C 语言图提取并生成模型提示词<a class="headerlink" href="#c" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>简介<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>该模块专注于 C 语言的静态/半静态分析，能够从 C 源码中提取抽象语法树（AST）、控制流图（CFG）、数据流依赖图（DFG）等结构化信息，并将其转换成适用于语言模型的提示词（prompt）或结构化特征（structured features）。</p>
+<p>该模块专注于 C 语言的静态/半静态分析，能够从 C 源码中提取抽象语法树（AST）、控制流图（CFG）、数据流依赖图（DFG）等结构化信息，并将其转换成适用于语言模型的提示词（prompt）或结构化特征（structured features）,解决了语言模型分析代码时缺少 <strong>上下文 （Context）</strong> 的问题。</p>
+<p>该模块的工作流程可以分为两个主要阶段：</p>
+<section id="preprocessing">
+<h3>阶段一：项目分析与上下文图谱构建 (Preprocessing)<a class="headerlink" href="#preprocessing" title="Link to this heading">¶</a></h3>
+<p>这个阶段的目标是“学习”整个 C 语言项目的代码结构，并建立一个知识库（或者叫“上下文图谱”）。</p>
+<ol class="arabic simple">
+<li><p><strong>扫描项目文件</strong> (<code class="docutils literal notranslate"><span class="pre">preprocess.py</span></code>): 程序首先会扫描指定 C 项目目录下的所有 <code class="docutils literal notranslate"><span class="pre">.c</span></code> 和 <code class="docutils literal notranslate"><span class="pre">.h</span></code> 文件。</p></li>
+<li><p><strong>逐文件解析</strong> (<code class="docutils literal notranslate"><span class="pre">cfile_parse.py</span></code>): 它使用 clang（一个 C/C++/Objective-C 的编译器前端）来对每个文件进行语法分析。这不仅仅是读取文本，而是构建了一个抽象语法树 (AST)，从而能精确地识别出：</p>
+<ul class="simple">
+<li><p>函数定义、变量声明、结构体（Struct）、联合体（Union）、枚举（Enum）等。</p></li>
+<li><p>它们在文件中的具体位置（行号）。</p></li>
+<li><p>它们之间的关系，例如一个变量是什么类型，一个函数返回什么类型。</p></li>
+<li><p>文件之间的 #include 关系。</p></li>
+</ul>
+</li>
+<li><p><strong>建立关系并存储</strong> (<code class="docutils literal notranslate"><span class="pre">preprocess.py</span></code>): 解析完所有文件后，程序会处理这些信息，特别是本地头文件引用（#include &quot;...&quot;）。它会把所有文件的解析结果整合成一个大的 JSON 文件，这个文件就代表了整个项目的“上下文图谱”。</p></li>
+</ol>
+</section>
+<section id="prompt-generation">
+<h3>阶段二：针对性提示生成 (Prompt Generation)<a class="headerlink" href="#prompt-generation" title="Link to this heading">¶</a></h3>
+<p>当你需要对某个文件中的某段代码进行补全时，就进入了这个阶段。</p>
+<ol class="arabic simple">
+<li><p><strong>加载上下文</strong> (<code class="docutils literal notranslate"><span class="pre">generator.py</span></code>): 程序会加载在第一阶段为该项目生成的上下文图谱 JSON 文件。</p></li>
+<li><p><strong>分析当前代码</strong> (<code class="docutils literal notranslate"><span class="pre">generator.py</span></code>): 它会分析你需要补全的代码片段（在 <code class="docutils literal notranslate"><span class="pre">main.py</span></code> 中称为 <code class="docutils literal notranslate"><span class="pre">input</span></code>），特别是代码中的 <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&quot;...&quot;</span></code> 语句。</p></li>
+<li><p><strong>检索相关信息</strong> (<code class="docutils literal notranslate"><span class="pre">node_prompt.py</span></code>): 根据 <code class="docutils literal notranslate"><span class="pre">#include</span></code> 的头文件，程序会从上下文图谱中精确地检索出这些头文件中定义的函数声明、结构体等关键信息。它通过一个深度优先搜索（DFS）来查找所有相关的依赖。</p></li>
+<li><p><strong>构建提示</strong> (<code class="docutils literal notranslate"><span class="pre">generator.py</span></code>, <code class="docutils literal notranslate"><span class="pre">node_prompt.py</span></code>): 它将检索到的上下文信息（比如其他文件的函数定义）格式化，并放在一个特殊的注释块 <code class="docutils literal notranslate"><span class="pre">/*</span> <span class="pre">...</span> <span class="pre">*/</span></code> 中。</p></li>
+<li><p><strong>智能截断与格式化 (tokenizer.py)</strong>:</p>
+<ul class="simple">
+<li><p>不同的语言模型有不同的输入长度限制（Token Limit）。这个模块会根据你选择的模型（如 CodeLlama, GPT-4），精确计算提示和源代码的 token 数量。</p></li>
+<li><p>如果总长度超出了模型的限制，它会用一种智能的方式进行截断（比如优先保留代码补全点附近的代码，并从开头截断上下文信息），确保最有价值的信息被保留下来。</p></li>
+<li><p>最后，它将 <strong>上下文注释、文件路径信息和待补全的代码</strong> 拼接成一个最终的、可以直接输入给语言模型的提示。</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：这个项目的本质是一个 <strong>上下文感知的提示工程师（Context-Aware Prompt Engineer）</strong> 。它通过静态分析整个 C 项目，为特定的代码补全任务，动态地构建一个包含最相关上下文的、为特定模型优化过的提示。</p>
+</section>
 </section>
 <section id="id2">
 <h2>功能展示<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
@@ -258,9 +293,8 @@
 <li><p>生成 CFG/DFG 并提取关键路径或影响集合。</p></li>
 <li><p>将图结构序列化为模型友好的格式（例如结构化概率矩阵、edge-list、flat prompt + metadata）。</p></li>
 </ul>
-</section>
 <section id="id3">
-<h2>展示示例（伪代码）<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<h3>展示示例（伪代码）<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ncc.tools.c_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">CGraphExtractor</span>
 
 <span class="n">g</span> <span class="o">=</span> <span class="n">CGraphExtractor</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="s2">&quot;example.c&quot;</span><span class="p">)</span>
@@ -270,23 +304,65 @@
 </div>
 </section>
 <section id="id4">
-<h2>使用教程<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<h3>演示图片<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<img alt="_images/C_graph_image1.png" src="_images/C_graph_image1.png" />
+</section>
+</section>
+<section id="id5">
+<h2>使用教程<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>依赖：需要安装 clang / libclang（并配置 LD_LIBRARY_PATH 或类似变量）。</p></li>
-<li><p>运行提取：
-.. code-block:: shell</p>
-<blockquote>
-<div><p>python -m ncc.tools.c_graph --file example.c --out example_graph.json</p>
-</div></blockquote>
+<li><p>运行提取：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ncc.tools.c_graph<span class="w"> </span>--file<span class="w"> </span>example.c<span class="w"> </span>--out<span class="w"> </span>example_graph.json
+</pre></div>
+</div>
 </li>
-<li><p>将 graph JSON 转换为 prompt：
-.. code-block:: python</p>
-<blockquote>
-<div><p>from ncc.tools.c_graph import graph_to_prompt
-prompt = graph_to_prompt(&quot;example_graph.json&quot;, focus=&quot;foo&quot;)</p>
-</div></blockquote>
+<li><p>将 graph JSON 转换为 prompt：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ncc.tools.c_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">graph_to_prompt</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">graph_to_prompt</span><span class="p">(</span><span class="s2">&quot;example_graph.json&quot;</span><span class="p">,</span> <span class="n">focus</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </li>
 </ol>
+<section id="id6">
+<h3>准备环境<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>Ccoder<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<section id="ceval">
+<h4>CEval 数据集<a class="headerlink" href="#ceval" title="Link to this heading">¶</a></h4>
+<p>每个样本在CEval (<code class="docutils literal notranslate"><span class="pre">CEval/c_metadata.jsonl</span></code>) 包含以下字段：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code>: 任务ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pkg</span></code>: 所属仓库</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpath</span></code>: 待补全代码的文件路径</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">input</span></code>: 待补全位置前的代码内容</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gt</span></code>: 待补全代码行的真实值</p></li>
+</ul>
+<p>合并c_repo：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>CEval<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cat<span class="w"> </span>c_repo.zip.part_*<span class="w"> </span>&gt;<span class="w"> </span>c_repo.zip
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h4>快速开始<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h4>
+<section id="id8">
+<h5>仓库特定的上下文图<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h5>
+<p>在离线预处理阶段，我们为数据集中的每个仓库构建仓库特定的上下文图：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>src<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>preprocess.py
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h5>代码补全<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h5>
+<p>在实时代码补全中，我们生成用于查询代码语言模型(LMs)的提示：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>src<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>main.py<span class="w"> </span>--model<span class="w"> </span><span class="nv">$MODEL</span><span class="w"> </span>--file<span class="w"> </span><span class="nv">$OUT_FILE</span><span class="w"> </span>--c_dataset<span class="w"> </span><span class="nv">$DATASET</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 </section>
 </section>
 
@@ -346,10 +422,28 @@ prompt = graph_to_prompt(&quot;example_graph.json&quot;, focus=&quot;foo&quot;)<
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">C 语言图提取并生成模型提示词</a><ul>
-<li><a class="reference internal" href="#id1">简介</a></li>
-<li><a class="reference internal" href="#id2">功能展示</a></li>
+<li><a class="reference internal" href="#id1">简介</a><ul>
+<li><a class="reference internal" href="#preprocessing">阶段一：项目分析与上下文图谱构建 (Preprocessing)</a></li>
+<li><a class="reference internal" href="#prompt-generation">阶段二：针对性提示生成 (Prompt Generation)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">功能展示</a><ul>
 <li><a class="reference internal" href="#id3">展示示例（伪代码）</a></li>
-<li><a class="reference internal" href="#id4">使用教程</a></li>
+<li><a class="reference internal" href="#id4">演示图片</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">使用教程</a><ul>
+<li><a class="reference internal" href="#id6">准备环境</a><ul>
+<li><a class="reference internal" href="#ceval">CEval 数据集</a></li>
+<li><a class="reference internal" href="#id7">快速开始</a><ul>
+<li><a class="reference internal" href="#id8">仓库特定的上下文图</a></li>
+<li><a class="reference internal" href="#id9">代码补全</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

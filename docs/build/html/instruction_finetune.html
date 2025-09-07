@@ -250,10 +250,12 @@
 <section id="id2">
 <h2>简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>本模块用于对代码语言模型做指令式微调（Instruction Fine-tuning），使模型更好地遵循自然语言的指令（例如“给出函数注释”、“补全 TODO” 等）并提升交互式代码生成/修改能力。
-其核心功能是通过提供标准化的数据集处理工具和可配置的训练脚本，对影响模型性能的关键变量进行量化对比和分析。框架旨在帮助研究人员和开发者找到最优的指令微调策略。具体流程如下：</p>
+其核心功能是通过提供标准化的数据集处理工具和可配置的训练脚本，对影响模型性能的关键变量进行量化对比和分析。框架旨在帮助研究人员和开发者找到最优的指令微调策略。</p>
+<section id="id3">
+<h3>具体流程<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p><strong>对比实验：指令数据格式的影响</strong></p>
-<p>框架的核心功能之一是深入探究训练数据对模型最终效果的影响。通过运行 instruction_data_compare.py 脚本，可以对以下数据维度进行受控实验：</p>
+<p>框架的核心功能之一是深入探究训练数据对模型最终效果的影响。通过运行 <code class="docutils literal notranslate"><span class="pre">instruction_data_compare.py</span></code> 脚本，可以对以下数据维度进行受控实验：</p>
 <ul class="simple">
 <li><p><strong>代码注释的价值分析</strong>: 通过对比标准数据集与移除了代码注释的数据集，量化评估注释中的自然语言信息对模型学习代码逻辑的贡献度。</p></li>
 <li><p><strong>思维链（CoT）的有效性验证</strong>: 对比增加思维链（Chain of Thought）前后的模型表现，验证 CoT 在代码任务中引导模型进行逻辑推理的实际效果。</p></li>
@@ -270,26 +272,25 @@
 <li><p><strong>Prompt-Tuning</strong></p></li>
 </ul>
 </li>
-<li><p><strong>自动化的数据处理与生成</strong></p></li>
-</ol>
-<p>为了支撑上述对比实验，框架提供了一套强大的数据预处理工具，位于 data_process 文件夹下，能够自动化地生成实验所需的各种数据集。</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><strong>多维度 CoT 数据生成</strong> (CoT_complex_data_generate.py): 利用一个强大的基座模型（如 Qwen2.5-72B），构建出用于复杂度对比实验的数据。</p></li>
-<li><p><strong>数据集清洗工具</strong> (remove_comment_util.py): 提供一键移除数据集中所有代码注释的功能，快速生成用于对照实验的数据集。</p></li>
+<li><p><strong>自动化的数据处理与生成</strong></p>
+<p>为了支撑上述对比实验，框架提供了一套强大的数据预处理工具，位于 <code class="docutils literal notranslate"><span class="pre">data_process</span></code> 文件夹下，能够自动化地生成实验所需的各种数据集。</p>
+<ul class="simple">
+<li><p><strong>多维度 CoT 数据生成</strong> (<code class="docutils literal notranslate"><span class="pre">CoT_complex_data_generate.py</span></code>): 利用一个强大的基座模型（如 Qwen2.5-72B），构建出用于复杂度对比实验的数据。</p></li>
+<li><p><strong>数据集清洗工具</strong> (<code class="docutils literal notranslate"><span class="pre">remove_comment_util.py</span></code>): 提供一键移除数据集中所有代码注释的功能，快速生成用于对照实验的数据集。</p></li>
 </ul>
-</div></blockquote>
+</li>
+</ol>
 </section>
-<section id="id3">
-<h2>功能展示<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id4">
+<h2>功能展示<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>将任务数据（instruction, input, output）格式化为训练样本。</p></li>
 <li><p>支持常见的训练流水线（数据并行、分布式训练、混合精度）。</p></li>
 <li><p>提供验证/评估脚本（基于 BLEU / ROUGE / pass&#64;k / 人工示例集等）。</p></li>
 </ul>
-</section>
-<section id="id4">
-<h2>示例配置（简要）<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h3>示例配置（简要）<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;codellama-7b&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;train_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data/instructions/train.jsonl&quot;</span><span class="p">,</span>
@@ -299,55 +300,71 @@
 </pre></div>
 </div>
 </section>
-<section id="id5">
-<h2>使用教程<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h3>演示图片<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>支持对多种高效微调方法进行分析及能力对比</p></li>
+</ol>
+<img alt="_images/instruction_image1.png" src="_images/instruction_image1.png" />
+</section>
+</section>
+<section id="id7">
+<h2>使用教程<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>数据准备：将数据组织为（instruction, input, output）三元组，推荐 JSONL。</p></li>
-<li><p>启动训练：
-.. code-block:: shell</p>
-<blockquote>
-<div><p>CUDA_VISIBLE_DEVICES=0,1 python -m ncc.train.instruction_finetune -c config/if_config.json</p>
-</div></blockquote>
+<li><p>启动训练：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>ncc.train.instruction_finetune<span class="w"> </span>-c<span class="w"> </span>config/if_config.json
+</pre></div>
+</div>
 </li>
 <li><p>验证与导出：训练完成后运行评估脚本并导出 checkpoint。</p></li>
 </ol>
-<section id="id6">
-<h3>数据处理与增强<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<h3>数据处理与增强<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>项目提供 <code class="docutils literal notranslate"><span class="pre">data_process</span></code> 模块，用于生成和处理指令微调训练数据。</p></li>
-<li><p><strong>CoT_complex_data_generate.py</strong>：对带有复杂思维链（CoT）的训练数据进行简化，生成不同复杂度的思维链数据：
-- <code class="docutils literal notranslate"><span class="pre">normal_think_step</span></code>：正常复杂度
-- <code class="docutils literal notranslate"><span class="pre">simple_think_step</span></code>：简化后的思维链</p></li>
-<li><p><strong>remove_comment_util.py</strong>：可选地去除代码注释信息，研究注释对微调效果的影响。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CoT_complex_data_generate.py</span></code>：对带有复杂思维链（CoT）的训练数据进行简化，生成不同复杂度的思维链数据：</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">normal_think_step</span></code>：正常复杂度</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simple_think_step</span></code>：简化后的思维链</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove_comment_util.py</span></code>：可选地去除代码注释信息，研究注释对微调效果的影响。</p></li>
 <li><p>支持分批处理大规模数据，并自动保存为 JSONL 格式。</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>指令微调实验<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<section id="id9">
+<h3>指令微调实验<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>使用 <code class="docutils literal notranslate"><span class="pre">InstructionTrainer</span></code> 类对基础模型进行指令微调。</p></li>
-<li><p>实验主要包括：
-- 标准种子数据集微调
-- 去除注释的指令数据微调
-- 带有思维链信息的数据微调
-- 不同复杂度（简单 / 正常 / 复杂）的思维链数据微调</p></li>
-<li><p>通过 YAML 配置文件（<code class="docutils literal notranslate"><span class="pre">configs/training/instruction_finetune.yaml</span></code>、<code class="docutils literal notranslate"><span class="pre">configs/training/peft.yaml</span></code>）管理训练参数。</p></li>
+<li><p>实验主要包括：</p>
+<ul>
+<li><p>标准种子数据集微调</p></li>
+<li><p>去除注释的指令数据微调</p></li>
+<li><p>带有思维链信息的数据微调</p></li>
+<li><p>不同复杂度（简单 / 正常 / 复杂）的思维链数据微调</p></li>
+</ul>
+</li>
+<li><p>通过 YAML 配置文件(<code class="docutils literal notranslate"><span class="pre">configs/training/instruction_finetune.yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">configs/training/peft.yaml</span></code>)管理训练参数。</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>高效微调方法比较<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<section id="id10">
+<h3>高效微调方法比较<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>使用 <code class="docutils literal notranslate"><span class="pre">peft_compare.py</span></code> 比较不同高效微调方法（PEFT）对模型性能的影响：
-- LoRA
-- AdaLoRA
-- Prefix Tuning
-- P-tuning
-- Prompt Tuning</p></li>
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">peft_compare.py</span></code> 比较不同高效微调方法（PEFT）对模型性能的影响：</p>
+<ul>
+<li><p>LoRA</p></li>
+<li><p>AdaLoRA</p></li>
+<li><p>Prefix Tuning</p></li>
+<li><p>P-tuning</p></li>
+<li><p>Prompt Tuning</p></li>
+</ul>
+</li>
 <li><p>所有方法均使用相同的标准指令数据集进行微调，以保证可比性。</p></li>
 </ul>
 </section>
-<section id="id9">
-<h3>训练与实验流程<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<section id="id11">
+<h3>训练与实验流程<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
 <p>配置环境变量：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span><span class="s2">:/path/to/naturalcc/ncc&quot;</span>
 </pre></div>
@@ -417,14 +434,20 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">代码语言模型指令微调</a><ul>
-<li><a class="reference internal" href="#id2">简介</a></li>
-<li><a class="reference internal" href="#id3">功能展示</a></li>
-<li><a class="reference internal" href="#id4">示例配置（简要）</a></li>
-<li><a class="reference internal" href="#id5">使用教程</a><ul>
-<li><a class="reference internal" href="#id6">数据处理与增强</a></li>
-<li><a class="reference internal" href="#id7">指令微调实验</a></li>
-<li><a class="reference internal" href="#id8">高效微调方法比较</a></li>
-<li><a class="reference internal" href="#id9">训练与实验流程</a></li>
+<li><a class="reference internal" href="#id2">简介</a><ul>
+<li><a class="reference internal" href="#id3">具体流程</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">功能展示</a><ul>
+<li><a class="reference internal" href="#id5">示例配置（简要）</a></li>
+<li><a class="reference internal" href="#id6">演示图片</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">使用教程</a><ul>
+<li><a class="reference internal" href="#id8">数据处理与增强</a></li>
+<li><a class="reference internal" href="#id9">指令微调实验</a></li>
+<li><a class="reference internal" href="#id10">高效微调方法比较</a></li>
+<li><a class="reference internal" href="#id11">训练与实验流程</a></li>
 </ul>
 </li>
 </ul>

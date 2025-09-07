@@ -259,13 +259,19 @@
 <ol class="arabic simple">
 <li><p><strong>可选：创建 Conda 环境</strong>
 建议用户使用 Conda 创建独立环境并激活，以便管理依赖。</p></li>
-<li><p><strong>从源码构建 NaturalCC</strong>
-- 克隆项目仓库并进入目录。
-- 安装项目依赖。
-- 进入 <cite>src</cite> 目录，进行可编辑模式安装。</p></li>
-<li><p><strong>安装额外依赖</strong>
-- 安装音频相关依赖（libsndfile）。
-- 安装最新版本的 HuggingFace Transformers 与 Accelerate 库。</p></li>
+<li><p><strong>从源码构建 NaturalCC</strong></p>
+<ul class="simple">
+<li><p>克隆项目仓库并进入目录。</p></li>
+<li><p>安装项目依赖。</p></li>
+<li><p>进入 <cite>src</cite> 目录，进行可编辑模式安装。</p></li>
+</ul>
+</li>
+<li><p><strong>安装额外依赖</strong></p>
+<ul class="simple">
+<li><p>安装音频相关依赖（libsndfile）。</p></li>
+<li><p>安装最新版本的 HuggingFace Transformers 与 Accelerate 库。</p></li>
+</ul>
+</li>
 <li><p><strong>HuggingFace Token（部分模型必需）</strong>
 对于如 StarCoder 这类模型，需要使用 HuggingFace 账号登录以获取访问权限。</p></li>
 </ol>
@@ -283,22 +289,29 @@
 </ol>
 <pre  class="mermaid">
         graph TD
-    A[下载模型检查点] --&gt; B[准备测试数据集]
-    B --&gt; C[初始化任务并指定设备]
-    C --&gt; D[加载模型权重]
-    D --&gt; E[加载数据集文件]
-    E --&gt; F[运行模型并输出结果]
+
+   A[下载模型检查点] --&gt; B[准备测试数据集]
+   B --&gt; C[初始化任务并指定设备]
+   C --&gt; D[加载模型权重]
+   D --&gt; E[加载数据集文件]
+   E --&gt; F[运行模型并输出结果]
     </pre><p><strong>示例 2：代码摘要（Code Summarization）</strong></p>
 <ol class="arabic simple">
 <li><p>下载并处理数据集（例如 Python-Wan 数据集），包括下载、清洗、属性转换等步骤。</p></li>
 <li><p>进行摘要任务相关的预处理，将代码与注释转化为合适格式。</p></li>
-<li><p><strong>注册自定义模型</strong>：
-- 将新模型加入 <cite>ncc/models</cite> 与 <cite>ncc/modules</cite>。
-- 如果训练策略较复杂，可在 <cite>ncc/criterions</cite> 与 <cite>ncc/trainers</cite> 中扩展。
-- 别忘了在相应的 <cite>__init__.py</cite> 中注册模块。</p></li>
-<li><p><strong>训练与推理</strong>：
-- 根据任务选择模型与配置文件进行训练。
-- 使用训练好的模型进行推理。</p></li>
+<li><p><strong>注册自定义模型</strong>：</p>
+<ul class="simple">
+<li><p>将新模型加入 <code class="docutils literal notranslate"><span class="pre">ncc/models</span></code> 与 <code class="docutils literal notranslate"><span class="pre">ncc/modules</span></code>。</p></li>
+<li><p>如果训练策略较复杂，可在 <code class="docutils literal notranslate"><span class="pre">ncc/criterions</span></code> 与 <code class="docutils literal notranslate"><span class="pre">ncc/trainers</span></code> 中扩展。</p></li>
+<li><p>别忘了在相应的 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 中注册模块。</p></li>
+</ul>
+</li>
+<li><p><strong>训练与推理</strong>：</p>
+<ul class="simple">
+<li><p>根据任务选择模型与配置文件进行训练。</p></li>
+<li><p>使用训练好的模型进行推理。</p></li>
+</ul>
+</li>
 </ol>
 </section>
 <section id="id4">

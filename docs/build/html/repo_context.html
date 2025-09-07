@@ -250,12 +250,15 @@
 <section id="id2">
 <h2>简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>本模块用于从代码仓库级别提取上下文信息（例如文件间调用关系、跨文件符号引用、函数/类上下文）并基于提取结果做补全或生成提示（prompts）。该功能适用于需要跨文件上下文的模型推理或训练场景。</p>
+<p>该项目通过提取代码仓库的上下文信息，结合语义分析和相似度计算，生成高质量的代码补全建议，帮助开发者更高效地理解和编写代码。</p>
+<section id="id3">
+<h3>主要功能<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
 <li><p><strong>仓库上下文提取</strong>：</p>
 <ul class="simple">
-<li><p>通过解析代码仓库中的文件，构建控制依赖图（CCG）和语义图数据库，提取代码片段之间的依赖关系和上下文信息。</p></li>
+<li><p>通过解析代码仓库中的文件，构建 <strong>控制依赖图（CCG）和语义图数据库</strong>，提取代码片段之间的依赖关系和上下文信息。</p></li>
 <li><p>使用工具如Slicing和GraphDatabaseBuilder，对代码进行切片，生成前向依赖上下文、子图和编码信息。</p></li>
-<li><p>提供了跨文件的定义和引用上下文提取功能（如construct_cross_file_definition_context和construct_cross_file_reference_context），帮助理解代码片段之间的跨文件依赖关系。</p></li>
+<li><p>提供了跨文件的定义和引用上下文提取功能（如 <code class="docutils literal notranslate"><span class="pre">construct_cross_file_definition_context</span></code>, <code class="docutils literal notranslate"><span class="pre">construct_cross_file_reference_context</span></code>），帮助理解代码片段之间的跨文件依赖关系。</p></li>
 </ul>
 </li>
 <li><p><strong>语义相似度计算与上下文推荐</strong>：</p>
@@ -266,7 +269,7 @@
 </li>
 <li><p><strong>仓库级别代码补全</strong>：</p>
 <ul class="simple">
-<li><p>通过构建查询子图（build_query_subgraph）和搜索上下文（CodeSearchWorker），实现了基于上下文的代码补全。</p></li>
+<li><p>通过构建查询子图(<code class="docutils literal notranslate"><span class="pre">build_query_subgraph</span></code>)和搜索上下文(<code class="docutils literal notranslate"><span class="pre">CodeSearchWorker</span></code>)，实现了基于上下文的代码补全。</p></li>
 <li><p>支持单阶段和双阶段的上下文查找策略，结合语义图和文本相似度，推荐最相关的代码片段。</p></li>
 </ul>
 </li>
@@ -276,18 +279,17 @@
 </ul>
 </li>
 </ol>
-<p>该项目通过提取代码仓库的上下文信息，结合语义分析和相似度计算，生成高质量的代码补全建议，帮助开发者更高效地理解和编写代码。</p>
 </section>
-<section id="id3">
-<h2>功能展示<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id4">
+<h2>功能展示<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>从 Git 仓库解析文件依赖关系、符号引用。</p></li>
 <li><p>为目标函数/片段构建上下文窗口（包含调用链、依赖文件片段）。</p></li>
 <li><p>支持把上下文编码为结构化 prompt，直接供 LLM 进行补全/生成。</p></li>
 </ul>
-</section>
-<section id="id4">
-<h2>展示示例<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h3>展示示例<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ncc.tools.repo_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">RepoContextExtractor</span>
 
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">RepoContextExtractor</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="s2">&quot;/path/to/repo&quot;</span><span class="p">)</span>
@@ -297,29 +299,33 @@
 </pre></div>
 </div>
 </section>
-<section id="id5">
-<h2>使用教程<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id6">
+<h2>使用教程<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>准备：克隆目标仓库并确保依赖可解析（例如编译配置、include 路径等）。</p></li>
-<li><p>运行提取器：
-.. code-block:: shell</p>
-<blockquote>
-<div><p>python -m ncc.tools.repo_context --repo /path/to/repo --target src/foo.c:123 --out out.json</p>
-</div></blockquote>
+<li><p>运行提取器：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ncc.tools.repo_context<span class="w"> </span>--repo<span class="w"> </span>/path/to/repo<span class="w"> </span>--target<span class="w"> </span>src/foo.c:123<span class="w"> </span>--out<span class="w"> </span>out.json
+</pre></div>
+</div>
 </li>
 <li><p>输出解析后包含：调用链、跨文件引用、常量/宏定义上下文，格式为 JSON（示例见工具 README）。</p></li>
 <li><p>将输出转换为模型输入 prompt（工具提供 helper 函数）。</p></li>
 </ol>
-<p>参数说明（常见）
-- <code class="docutils literal notranslate"><span class="pre">--repo</span></code>: 仓库路径
-- <code class="docutils literal notranslate"><span class="pre">--target</span></code>: 目标位置，格式 <code class="docutils literal notranslate"><span class="pre">file:lineno</span></code>
-- <code class="docutils literal notranslate"><span class="pre">--window</span></code>: 上下文窗口大小（字符或行）</p>
-</section>
-<section id="id6">
-<h2>仓库上下文提取测试<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
-<p>本目录包含用于测试不同类型仓库上下文的代码。</p>
 <section id="id7">
-<h3>目录结构<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<h3>参数说明（常见）<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--repo</span></code>: 仓库路径</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--target</span></code>: 目标位置，格式 <code class="docutils literal notranslate"><span class="pre">file:lineno</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--window</span></code>: 上下文窗口大小（字符或行）</p></li>
+</ul>
+</section>
+</section>
+<section id="id8">
+<h2>仓库上下文提取测试<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<p>本目录包含用于测试不同类型仓库上下文的代码。</p>
+<section id="id9">
+<h3>目录结构<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>test_repo_context/
 ├── line_completion_dependency_graph.jsonl    # 依赖图生成的测试数据
 ├── line_completion_rg1_tfidf.jsonl           # TF-IDF相似性测试数据
@@ -329,13 +335,15 @@
 </pre></div>
 </div>
 </section>
-<section id="id8">
-<h3>测试类型<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<section id="id10">
+<h3>测试类型<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
-<li><p><strong>通用相似性测试(test_common_similar_context.py)</strong>
-- 基于文本相似度的上下文匹配
-- 支持UnixCoderCodeBertBM25TF-IDF编辑相似度等多种相似度检索方法
-- 示例测试命令：基于TF-IDF的上下文检索</p>
+<li><p><strong>通用相似性测试</strong> (<code class="docutils literal notranslate"><span class="pre">test_common_similar_context.py</span></code>)</p>
+<ul class="simple">
+<li><p>基于文本相似度的上下文匹配</p></li>
+<li><p>支持UnixCoderCodeBertBM25TF-IDF编辑相似度等多种相似度检索方法</p></li>
+<li><p>示例测试命令：基于TF-IDF的上下文检索</p></li>
+</ul>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>augment_with_cfc.py<span class="w"> </span><span class="se">\</span>
 --language<span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
 --rerank<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
@@ -351,21 +359,27 @@
 </pre></div>
 </div>
 </li>
-<li><p><strong>图语义相似性测试(test_graph_semantic_similar_context.py)</strong>
-- 基于代码语义图的相似性分析
-- 考虑变量、函数调用等语义关系
-- 测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_graph_semantic_similar_context.py</span></code></p></li>
-<li><p><strong>结构相关性测试(test_structural_related_context.py)</strong>
-- 分析代码结构相关性
-- 考虑类继承、接口实现等结构关系
-- 测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_structural_related_context.py</span></code></p></li>
+<li><p><strong>图语义相似性测试</strong> (<code class="docutils literal notranslate"><span class="pre">test_graph_semantic_similar_context.py</span></code>)</p>
+<ul class="simple">
+<li><p>基于代码语义图的相似性分析</p></li>
+<li><p>考虑变量、函数调用等语义关系</p></li>
+<li><p>测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_graph_semantic_similar_context.py</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>结构相关性测试</strong> (<code class="docutils literal notranslate"><span class="pre">test_structural_related_context.py</span></code>)</p>
+<ul class="simple">
+<li><p>分析代码结构相关性</p></li>
+<li><p>考虑类继承、接口实现等结构关系</p></li>
+<li><p>测试命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test_structural_related_context.py</span></code></p></li>
+</ul>
+</li>
 </ol>
 </section>
 </section>
-<section id="id9">
-<h2>仓库级别代码补全测试<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
-<section id="id10">
-<h3>目录结构<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<section id="id11">
+<h2>仓库级别代码补全测试<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<section id="id12">
+<h3>目录结构<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>repo-level_code_completion/
 ├── config.yaml                # accelerate配置文件
 ├── custom_generate.py         # 自定义生成逻辑
@@ -381,14 +395,14 @@
 </pre></div>
 </div>
 </section>
-<section id="id11">
-<h3>运行评估<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<section id="id13">
+<h3>运行评估<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_batch_experiments.py<span class="w"> </span>--task<span class="w"> </span>repofuse-main
 </pre></div>
 </div>
 </section>
-<section id="id12">
-<h3>评估指标<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
+<section id="id14">
+<h3>评估指标<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Exact Match (EM)</p></li>
 <li><p>Edit Similarity (ES)</p></li>
@@ -454,19 +468,27 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">仓库级别代码上下文提取与补全</a><ul>
-<li><a class="reference internal" href="#id2">简介</a></li>
-<li><a class="reference internal" href="#id3">功能展示</a></li>
-<li><a class="reference internal" href="#id4">展示示例</a></li>
-<li><a class="reference internal" href="#id5">使用教程</a></li>
-<li><a class="reference internal" href="#id6">仓库上下文提取测试</a><ul>
-<li><a class="reference internal" href="#id7">目录结构</a></li>
-<li><a class="reference internal" href="#id8">测试类型</a></li>
+<li><a class="reference internal" href="#id2">简介</a><ul>
+<li><a class="reference internal" href="#id3">主要功能</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id9">仓库级别代码补全测试</a><ul>
-<li><a class="reference internal" href="#id10">目录结构</a></li>
-<li><a class="reference internal" href="#id11">运行评估</a></li>
-<li><a class="reference internal" href="#id12">评估指标</a></li>
+<li><a class="reference internal" href="#id4">功能展示</a><ul>
+<li><a class="reference internal" href="#id5">展示示例</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">使用教程</a><ul>
+<li><a class="reference internal" href="#id7">参数说明（常见）</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">仓库上下文提取测试</a><ul>
+<li><a class="reference internal" href="#id9">目录结构</a></li>
+<li><a class="reference internal" href="#id10">测试类型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id11">仓库级别代码补全测试</a><ul>
+<li><a class="reference internal" href="#id12">目录结构</a></li>
+<li><a class="reference internal" href="#id13">运行评估</a></li>
+<li><a class="reference internal" href="#id14">评估指标</a></li>
 </ul>
 </li>
 </ul>

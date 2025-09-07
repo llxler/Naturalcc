@@ -249,38 +249,56 @@
 <h1>Tokenizer 自定义与评估工具箱<a class="headerlink" href="#tokenizer" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>简介<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>本模块是一个面向代码语言模型的 <strong>Tokenizer 自定义与评估工具箱</strong>。它提供了一整套从训练新词表、迁移至现有模型，到在下游任务中进行端到端评测的完整解决方案。该工具类的核心是赋予开发者修改和优化模型“输入端”的能力，通过定制化的 Tokenizer 提升模型在特定领域（尤其是代码相关任务）的性能。
-本项目支持对现有 tokenizer 的改造、训练新的 tokenizer 以及自定义 tokenizer 的实验与评估。项目结构清晰，模块化设计，适用于现代大模型训练场景，支持多卡并行、精度加速等优化。
+<p>本模块是一个面向代码语言模型的 <strong>Tokenizer 自定义与评估工具箱</strong>。它提供了一整套从训练新词表、迁移至现有模型，到在下游任务中进行端到端评测的完整解决方案。该工具类的核心是赋予开发者修改和优化模型“输入端”的能力，通过定制化的 Tokenizer 提升模型在特定领域（尤其是代码相关任务）的性能。</p>
+<p>本项目支持对现有 tokenizer 的改造、训练新的 tokenizer 以及自定义 tokenizer 的实验与评估。项目结构清晰，模块化设计，适用于现代大模型训练场景，支持多卡并行、精度加速等优化。
 Tokenizer 工具箱提供自定义分词器（Tokenizer）训练、词表管理、以及评估套件，用于验证不同 Tokenizer 在代码任务上的表现（如对代码片段的分割、subtoken 频率、OOV 率等）。</p>
+<section id="id2">
+<h3>主要功能<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p><strong>核心模块：Tokenizer 自定义与迁移</strong></p>
-<p>项目通过 modules 目录提供了一系列强大工具，支持对 Tokenizer 进行多种深度改造：</p>
+<p>项目通过 <code class="docutils literal notranslate"><span class="pre">modules</span></code> 目录提供了一系列强大工具，支持对 Tokenizer 进行多种深度改造：</p>
 <ul class="simple">
-<li><p><strong>词表构建与迁移 (vocabulary_transfer)</strong>:  这是工具箱的中心功能。允许用户使用自己的语料库从零开始训练一个全新的词表 (train_vocab.py)。更关键的是，它提供了词表迁移 (transfer.py) 功能，能够将这个新词表无缝地整合进一个已有的预训练大模型中，解决了自定义 Tokenizer 后续模型适配的难题。</p></li>
-<li><p><strong>Token 语义提取 (token_semantics)</strong>: 针对特定任务（如代码生成、代码总结），此模块能够从原始数据中提取与 Token 相关的语义信息，为下游任务的训练准备格式化的输入数据。</p></li>
-<li><p><strong>Token 结构微调 (token_affix)</strong>: 提供对 Token 前后缀等细节进行处理和映射的工具，为实现更精细化的 Tokenizer 结构调整提供了可能。</p></li>
+<li><p><strong>词表构建与迁移</strong> (<code class="docutils literal notranslate"><span class="pre">vocabulary_transfer</span></code>):  这是工具箱的中心功能。允许用户使用自己的语料库从零开始 <strong>训练一个全新的词表</strong> (<code class="docutils literal notranslate"><span class="pre">train_vocab.py</span></code>)。更关键的是，它提供了 <strong>词表迁移</strong> (<code class="docutils literal notranslate"><span class="pre">transfer.py</span></code>) 功能，能够将这个新词表无缝地整合进一个已有的预训练大模型中，解决了自定义 Tokenizer 后续模型适配的难题。</p></li>
+<li><p><strong>Token 语义提取</strong> (<code class="docutils literal notranslate"><span class="pre">token_semantics</span></code>): 针对特定任务（如代码生成、代码总结），此模块能够从原始数据中提取与 Token 相关的语义信息，为下游任务的训练准备格式化的输入数据。</p></li>
+<li><p><strong>Token 结构微调</strong> (<code class="docutils literal notranslate"><span class="pre">token_affix</span></code>): 提供对 Token 前后缀等细节进行处理和映射的工具，为实现更精细化的 Tokenizer 结构调整提供了可能。</p></li>
 </ul>
 </li>
 <li><p><strong>任务驱动的实验与评估</strong>：</p>
 <p>本项目内置了完整的实验与评估流程：</p>
 <ul class="simple">
-<li><p><strong>内置下游任务 (experiments/tasks)</strong>: 提供了代码生成（Code_Generation）和代码总结（Code_Summarization）两个典型的代码领域任务。用户在定制完 Tokenizer 后，可以直接运行这些脚本来端到端地评测其对模型性能的实际影响。</p></li>
-<li><p><strong>现代化训练脚本</strong>: 所有实验脚本（如 run_modern.py）都支持多 GPU 并行训练和混合精度加速，能够充分利用现代硬件，大幅缩短实验周期。</p></li>
-<li><p><strong>独立的 Tokenizer 评估 (evaluate)</strong>: 除了下游任务评测，项目还提供了独立的 Tokenizer 性能评估模块。通过 compute_metrics.sh 脚本，可以计算新 Tokenizer 的词表覆盖率、语义保持能力等固有指标，进行更全面的分析。</p></li>
+<li><p><strong>内置下游任务</strong> (<code class="docutils literal notranslate"><span class="pre">experiments/tasks</span></code>): 提供了 <strong>代码生成（Code_Generation）和代码总结（Code_Summarization）</strong> 两个典型的代码领域任务。用户在定制完 Tokenizer 后，可以直接运行这些脚本来端到端地评测其对模型性能的实际影响。</p></li>
+<li><p><strong>现代化训练脚本</strong>: 所有实验脚本（如 <code class="docutils literal notranslate"><span class="pre">run_modern.py</span></code>）都支持多 GPU 并行训练和混合精度加速，能够充分利用现代硬件，大幅缩短实验周期。</p></li>
+<li><p><strong>独立的 Tokenizer 评估</strong> (<code class="docutils literal notranslate"><span class="pre">evaluate</span></code>): 除了下游任务评测，项目还提供了独立的 Tokenizer 性能评估模块。通过 <code class="docutils literal notranslate"><span class="pre">compute_metrics.sh</span></code> 脚本，可以计算新 Tokenizer 的词表覆盖率、语义保持能力等固有指标，进行更全面的分析。</p></li>
 </ul>
 </li>
 </ol>
 </section>
-<section id="id2">
-<h2>功能展示<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id3">
+<h2>功能展示<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>基于 BPE / SentencePiece / Unigram 的 Tokenizer 训练。</p></li>
 <li><p>支持合并自定义 token（例如常见 API 名称、宏名）。</p></li>
 <li><p>提供评估指标：token 长度分布、平均序列长度、OOV 比率、下游任务影响评估（可选）。</p></li>
 </ul>
+<section id="id4">
+<h3>演示图片<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Tokenizer 自定义功能介绍</p></li>
+</ol>
+<img alt="_images/tokenizer_image1.png" src="_images/tokenizer_image1.png" />
+<ol class="arabic simple" start="2">
+<li><p>支持对 Tokenizer 进行自定义及微调实验</p></li>
+</ol>
+<img alt="_images/tokenizer_image2.png" src="_images/tokenizer_image2.png" />
+<ol class="arabic simple" start="3">
+<li><p>支持对自定义 Tokenizer 能力进行完整评估</p></li>
+</ol>
+<img alt="_images/tokenizer_image3.png" src="_images/tokenizer_image3.png" />
 </section>
-<section id="id3">
-<h2>使用教程<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id5">
+<h2>使用教程<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>训练 Tokenizer（示例，SentencePiece）：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ncc.tools.tokenizer.train<span class="w"> </span>--input<span class="w"> </span>data/code_corpus.txt<span class="w"> </span>--model_prefix<span class="w"> </span>my_tokenizer<span class="w"> </span>--vocab_size<span class="w"> </span><span class="m">50000</span>
@@ -300,30 +318,41 @@ Tokenizer 工具箱提供自定义分词器（Tokenizer）训练、词表管理�
 </div>
 </li>
 </ol>
-</section>
-<section id="id4">
-<h2>演示图片<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h3>环境配置<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Tokenizer 自定义功能介绍</p></li>
+<li><p>创建虚拟环境</p></li>
 </ol>
-<img alt="_images/tokenizer_image1.png" src="_images/tokenizer_image1.png" />
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>&lt;env_name&gt;<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+conda<span class="w"> </span>activate<span class="w"> </span>&lt;env_name&gt;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><code class="docutils literal notranslate"><span class="pre">env_name</span></code> 是你想要创建的环境的名称
+<code class="docutils literal notranslate"><span class="pre">python=3.10</span></code> 表示创建的环境将使用 Python 3.10 版本。你可以根据需要选择更高版本的 Python</p>
+</div>
 <ol class="arabic simple" start="2">
-<li><p>支持对 Tokenizer 进行自定义及微调实验</p></li>
+<li><p>安装依赖包</p></li>
 </ol>
-<img alt="_images/tokenizer_image2.png" src="_images/tokenizer_image2.png" />
-<ol class="arabic simple" start="3">
-<li><p>支持对自定义 Tokenizer 能力进行完整评估</p></li>
-</ol>
-<img alt="_images/tokenizer_image3.png" src="_images/tokenizer_image3.png" />
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cu128
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>为保持依赖稳定，建议首先下载适合系统版本的torch</p>
+</div>
 </section>
-<section id="id5">
-<h2>附加说明<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id7">
+<h2>附加说明<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>推荐在训练 Tokenizer 前先清洗代码语料（去掉过长注释、二进制文件等）。</p></li>
 <li><p>对于跨语言场景，建议训练联合词表或使用 language-id 前缀。</p></li>
 </ul>
-<section id="id6">
-<h3>项目目录结构<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<h3>项目目录结构<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>├── data
 ├── evaluate
 │   └── tokenizer_evaluate
@@ -364,8 +393,8 @@ Tokenizer 工具箱提供自定义分词器（Tokenizer）训练、词表管理�
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h3>目录说明<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<section id="id9">
+<h3>目录说明<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <section id="data">
 <h4><code class="docutils literal notranslate"><span class="pre">data</span></code><a class="headerlink" href="#data" title="Link to this heading">¶</a></h4>
 <p>存放原始数据集与预处理数据，用于 tokenizer 训练和实验任务。</p>
@@ -447,35 +476,6 @@ Tokenizer 工具箱提供自定义分词器（Tokenizer）训练、词表管理�
 <p>记录项目 Python 环境依赖</p>
 </section>
 </section>
-<section id="id8">
-<h3>使用教程<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
-<section id="id9">
-<h4>环境配置<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h4>
-<ol class="arabic simple">
-<li><p>创建虚拟环境</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>&lt;env_name&gt;<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
-conda<span class="w"> </span>activate<span class="w"> </span>&lt;env_name&gt;
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">备注</p>
-<p><code class="docutils literal notranslate"><span class="pre">env_name</span></code> 是你想要创建的环境的名称
-<code class="docutils literal notranslate"><span class="pre">python=3.10</span></code> 表示创建的环境将使用 Python 3.10 版本。你可以根据需要选择更高版本的 Python</p>
-</div>
-<ol class="arabic simple" start="2">
-<li><p>安装依赖包</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cu128
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</pre></div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">警告</p>
-<p>为保持依赖稳定，建议首先下载适合系统版本的torch</p>
-</div>
-</section>
-</section>
 </section>
 </section>
 
@@ -527,23 +527,27 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Tokenizer 自定义与评估工具箱</a><ul>
-<li><a class="reference internal" href="#id1">简介</a></li>
-<li><a class="reference internal" href="#id2">功能展示</a></li>
-<li><a class="reference internal" href="#id3">使用教程</a></li>
+<li><a class="reference internal" href="#id1">简介</a><ul>
+<li><a class="reference internal" href="#id2">主要功能</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">功能展示</a><ul>
 <li><a class="reference internal" href="#id4">演示图片</a></li>
-<li><a class="reference internal" href="#id5">附加说明</a><ul>
-<li><a class="reference internal" href="#id6">项目目录结构</a></li>
-<li><a class="reference internal" href="#id7">目录说明</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">使用教程</a><ul>
+<li><a class="reference internal" href="#id6">环境配置</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">附加说明</a><ul>
+<li><a class="reference internal" href="#id8">项目目录结构</a></li>
+<li><a class="reference internal" href="#id9">目录说明</a><ul>
 <li><a class="reference internal" href="#data"><code class="docutils literal notranslate"><span class="pre">data</span></code></a></li>
 <li><a class="reference internal" href="#evaluate-tokenizer-evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate/tokenizer_evaluate</span></code></a></li>
 <li><a class="reference internal" href="#modules"><code class="docutils literal notranslate"><span class="pre">modules</span></code></a></li>
 <li><a class="reference internal" href="#experiments-tasks"><code class="docutils literal notranslate"><span class="pre">experiments/tasks</span></code></a></li>
 <li><a class="reference internal" href="#readme-md"><code class="docutils literal notranslate"><span class="pre">README.md</span></code></a></li>
 <li><a class="reference internal" href="#requirements-txt"><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id8">使用教程</a><ul>
-<li><a class="reference internal" href="#id9">环境配置</a></li>
 </ul>
 </li>
 </ul>
